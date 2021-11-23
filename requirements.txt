@@ -1,2 +1,4 @@
-requests==2.26.0
 pytest==6.2.5
+requests==2.26.0
+requests-cache==0.8.1
+vcrpy==4.1.1
