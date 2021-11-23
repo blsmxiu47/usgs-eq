@@ -6,3 +6,6 @@ __pycache__/
 .env
 
 usgs_env
+
+vcr_cassettes/
+http_cache/
