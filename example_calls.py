@@ -1,8 +1,10 @@
 from usgs import Earthquakes
 
-eq = Earthquakes()
-earthquakes_all_pasthour = eq.get_summary()
+if __name__ == '__main__':
+    eq = Earthquakes()
 
-print(type(earthquakes_all_pasthour))
-print('Keys:')
-print(earthquakes_all_pasthour.keys())
+    earthquakes_all_pasthour = eq.get_summary()
+    print(type(earthquakes_all_pasthour), '\nKeys:\n', earthquakes_all_pasthour.keys())
+
+    earthquakes_geojson_oct = eq.query_catalog(response_format='geojson', start='2021-10-01', end='2021-10-04')
+    print(type(earthquakes_geojson_oct), '\nKeys:\n', earthquakes_geojson_oct.keys())
