@@ -4,7 +4,7 @@ class Urls:
         """
         self.base_url = 'https://earthquake.usgs.gov/'
         
-        self.summary_base_url = 'feed/v1.0/summary/'
+        self.summary_base_url = self.base_url + 'earthquakes/feed/v1.0/summary/'
         
         self.events_base_url = self.base_url + 'fdsnws/event/1/'
         self.application_json = 'application.json'
@@ -33,7 +33,7 @@ class Urls:
         return self.events_base_url + self.version
 
     def summary_url(self):
-        return self.events_base_url + self.application_json
+        return self.summary_base_url
 
     def query_url(self):
         return self.events_base_url + self.query
