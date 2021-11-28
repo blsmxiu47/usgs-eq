@@ -1,13 +1,86 @@
+import logging
+
 from . import session
 from .urls import Urls
+# from .base import EQCatalogBase
 
-# import logging
+# class EQCatalog(EQCatalogBase):
+#     def __init__(self) -> None:
+#         logging.info('EQCatalog using Base...')
+
+
+class EQCatalog(object):
+
+    default_params = {
+        'response_format': {'url_key': 'format', 'value': None},
+        'start': {'url_key': 'starttime', 'value': None},
+        'end': {'url_key': 'endtime', 'value': None},
+        'updated_after': {'updatedafter': 'format', 'value': None},
+        'min_lat': {'url_key': 'minlatitude', 'value': None},
+        'min_lng': {'url_key': 'minlongitude', 'value': None},
+        'max_lat': {'url_key': 'maxlatitude', 'value': None},
+        'max_lng': {'url_key': 'maxlongitude', 'value': None},
+        'max_radius': {'url_key': 'maxradius', 'value': None},
+        'max_radius_km': {'url_key': 'maxradiuskm', 'value': None},
+        'catalog': {'url_key': 'catalog', 'value': None},
+        'contributor': {'url_key': 'contributor', 'value': None},
+        'eventid': {'url_key': 'eventid', 'value': None},
+        'include_all_magnitudes': {'url_key': 'includeallmagnitudes', 'value': None},
+        'include_all_origins': {'url_key': 'includeallorigins', 'value': None},
+        'include_arrivals': {'url_key': 'includearrivals', 'value': None},
+        'include_deleted': {'url_key': 'includedeleted', 'value': None},
+        'include_superseded': {'url_key': 'includesuperseded', 'value': None},
+        'limit': {'url_key': 'limit', 'value': None},
+        'min_depth': {'url_key': 'mindepth', 'value': None},
+        'min_magnitude': {'url_key': 'minmagnitude', 'value': None},
+        'max_depth': {'url_key': 'maxdepth', 'value': None},
+        'max_magnitude': {'url_key': 'maxmagnitude', 'value': None},
+        'offset': {'url_key': 'offset', 'value': 1},
+        'order_by': {'url_key': 'orderby', 'value': 'time'},
+    }
+
+    def __init__(self, params=None):
+        self.url = Urls().query_url()
+        self.params = self.get_params(params)
+
+    def get_params(self, params):
+        """ Parses parameters passed by the user into GET parameters """
+
+        parsed_params = {}
+
+        for key, val in params.items():
+            try:
+                param = self.default_params.get(key)
+                if param['value'] is None:
+                    parsed_params[param['url_key']] = param['value']
+                elif isinstance(param['value'], dict):
+                    valid_options = param['value']
+                    if isinstance(val, str):
+                        val = [val]
+                    options = []
+                    for opt in val:
+                        try:
+                            options.append(valid_options[opt])
+                        except KeyError:
+                            logging.warning(f'{(opt, key)} is not a valid option')
+                    parsed_params[param['url_key']] = options
+                elif val:
+                    parsed_params[param['url_key']] = param['value']
+            except KeyError:
+                logging.warning(f'{key} is not a valid option')
+        return parsed_params
+
+    def query(self):
+        """ Executes GET request of USGS EQ Catalog API using filters specified by user in method parameters """
+        response = session.get(self.url, params=self.params)
+        return response.json()
+
 
 class Earthquakes(object):
     def __init__(self) -> None:
         super().__init__()
 
-        self.url = Urls()
+        self.url = Urls().summary_url()
 
     def get_summary(self, format='geojson', timeframe='hour', min_magnitude=None):
         """
@@ -25,48 +98,21 @@ class Earthquakes(object):
             assert min_magnitude in ['1.0', '2.5', '4.5', 'significant'], \
                 "argument min_magnitude takes values '1.0', '2.5', '4.5', and 'significant'. For more specific filtering please use the EQ Catalog method, query_catalog"
         
-        path = f'{self.url.summary_url()}{min_magnitude}_{timeframe}.{format}'
+        path = f'{self.url}{min_magnitude}_{timeframe}.{format}'
         response = session.get(path)
         return response.json()
 
-    def query_catalog(
-        self, 
-        response_format='geojson', 
-        start='2021-01-01', 
-        end='2021-01-02', 
-        updated_after=None,
-        min_lat=None,
-        min_lng=None,
-        max_lat=None,
-        max_lng=None,
-        lat=None,
-        lng=None,
-        max_radius=None,
-        max_radius_km=None,
-        catalog=None,
-        contributor=None,
-        eventid=None,
-        include_all_magnitudes=False,
-        include_all_origins=False,
-        include_arrivals=False,
-        include_deleted=False,
-        include_superseded=False,
-        limit=None,
-        max_depth=None,
-        max_magnitude=None,
-        min_depth=None,
-        min_magnitude=None,
-        offset=1,
-        order_by='time'
-        ):
-        """
-        GETs results of USGS EQ Catalog query as specified by supplied and/or default argument parameters.
+    # def query_catalog(self, **kwargs):
+    #     """
+    #     GETs results of USGS EQ Catalog query as specified by supplied and/or default argument parameters.
 
-        Parameters:
-            response_format (str) -- file format in which to return summary and catalog responses (e.g. 'atom', 'csv', 'geojson', 'kml', 'xml')
-            start (str) -- Start date of time period to search (format: %Y-%m-%d)
-            end (str) -- End date of time period to search (format: %Y-%m-%d)
-        """
-        path = f'{self.url.query_url()}format={response_format}&starttime={start}&endtime={end}&updatedafter={updated_after}&minmagnitude={min_magnitude}'
-        response = session.get(path)
-        return response.json()
+    #     Parameters:
+    #         response_format (str) -- file format in which to return summary and catalog responses (e.g. 'atom', 'csv', 'geojson', 'kml', 'xml')
+    #         start (str) -- Start date of time period to search (format: %Y-%m-%d)
+    #         end (str) -- End date of time period to search (format: %Y-%m-%d)
+    #     """
+    #     valid_params(kwargs)
+        
+    #     # path = f'{self.url.query_url()}format={response_format}&starttime={start}&endtime={end}&updatedafter={updated_after}&minmagnitude={min_magnitude}'
+    #     response = session.get(self.url.query_url(), params=kwargs)
+    #     return response.json()
