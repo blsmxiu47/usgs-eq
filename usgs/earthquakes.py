@@ -29,13 +29,44 @@ class Earthquakes(object):
         response = session.get(path)
         return response.json()
 
-    def query_catalog(self, response_format='geojson', start='2021-01-01', end='2021-01-02'):
+    def query_catalog(
+        self, 
+        response_format='geojson', 
+        start='2021-01-01', 
+        end='2021-01-02', 
+        updated_after=None,
+        min_lat=None,
+        min_lng=None,
+        max_lat=None,
+        max_lng=None,
+        lat=None,
+        lng=None,
+        max_radius=None,
+        max_radius_km=None,
+        catalog=None,
+        contributor=None,
+        eventid=None,
+        include_all_magnitudes=False,
+        include_all_origins=False,
+        include_arrivals=False,
+        include_deleted=False,
+        include_superseded=False,
+        limit=None,
+        max_depth=None,
+        max_magnitude=None,
+        min_depth=None,
+        min_magnitude=None,
+        offset=1,
+        order_by='time'
+        ):
         """
+        GETs results of USGS EQ Catalog query as specified by supplied and/or default argument parameters.
+
         Parameters:
             response_format (str) -- file format in which to return summary and catalog responses (e.g. 'atom', 'csv', 'geojson', 'kml', 'xml')
             start (str) -- Start date of time period to search (format: %Y-%m-%d)
             end (str) -- End date of time period to search (format: %Y-%m-%d)
         """
-        path = f'{self.url.query_url()}format={response_format}&starttime={start}&endtime={end}'
+        path = f'{self.url.query_url()}format={response_format}&starttime={start}&endtime={end}&updatedafter={updated_after}&minmagnitude={min_magnitude}'
         response = session.get(path)
         return response.json()
