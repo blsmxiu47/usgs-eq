@@ -34,12 +34,12 @@ class EQCatalogBase(object):
     }
 
     def __init__(self, params=None):
-        self.params = self.get_params()
+        self.params = self.get_params(params)
 
     def get_params(self, params):
         """ Parses parameters passed by the user into GET parameters """
 
-        parsed_params= {}
+        parsed_params = {}
 
         for key, val in params.items():
             try:
