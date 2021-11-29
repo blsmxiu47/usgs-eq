@@ -1,4 +1,5 @@
 import logging
+import time
 
 from . import session
 from .urls import Urls
@@ -48,10 +49,8 @@ class EQCatalog(object):
         parsed_params = {}
 
         for key, val in params.items():
-            print(key, val)
             try:
                 param = self.default_params.get(key)
-                print(param)
                 if param['value'] is None:
                     parsed_params[param['url_key']] = val
                 elif isinstance(param['value'], dict):
@@ -67,17 +66,25 @@ class EQCatalog(object):
                     parsed_params[param['url_key']] = options
                 elif val:
                     parsed_params[param['url_key']] = param['value']
-                print(param['value'])
             except KeyError:
                 logging.warning(f'{key} is not a valid option')
-        print(parsed_params)
         return parsed_params
 
-    def query(self, **kwargs):
+    def query(self, file_path=None, **kwargs):
         """ Executes GET request of USGS EQ Catalog API using filters specified by user in method parameters """
         params = self.get_params(kwargs)
-        response = session.get(self.url, params=params)
-        return response.json()
+        if params['format'] != 'geojson':
+            with session.get(self.url, params=params) as response:
+                response.raise_for_status()
+                if file_path is None:
+                    file_path = 'usgs_response_{0}.{1}'.format(time.time(), params['format'])
+                with open(file_path, 'wb+') as f:
+                    for chunk in response.iter_content(chunk_size=8192):
+                        f.write(chunk)
+                return {'response': response, 'user_parameters': kwargs}
+        else:
+            response = session.get(self.url, params=params)
+            return response.json()
 
 
 class EQFeeds(object):
