@@ -39,9 +39,8 @@ class EQCatalog(object):
         'order_by': {'url_key': 'orderby', 'value': 'time'},
     }
 
-    def __init__(self, params=None):
+    def __init__(self, params=default_params):
         self.url = Urls().query_url()
-        self.params = self.get_params(params)
 
     def get_params(self, params):
         """ Parses parameters passed by the user into GET parameters """
@@ -49,10 +48,12 @@ class EQCatalog(object):
         parsed_params = {}
 
         for key, val in params.items():
+            print(key, val)
             try:
                 param = self.default_params.get(key)
+                print(param)
                 if param['value'] is None:
-                    parsed_params[param['url_key']] = param['value']
+                    parsed_params[param['url_key']] = val
                 elif isinstance(param['value'], dict):
                     valid_options = param['value']
                     if isinstance(val, str):
@@ -66,17 +67,20 @@ class EQCatalog(object):
                     parsed_params[param['url_key']] = options
                 elif val:
                     parsed_params[param['url_key']] = param['value']
+                print(param['value'])
             except KeyError:
                 logging.warning(f'{key} is not a valid option')
+        print(parsed_params)
         return parsed_params
 
-    def query(self):
+    def query(self, **kwargs):
         """ Executes GET request of USGS EQ Catalog API using filters specified by user in method parameters """
-        response = session.get(self.url, params=self.params)
+        params = self.get_params(kwargs)
+        response = session.get(self.url, params=params)
         return response.json()
 
 
-class Earthquakes(object):
+class EQFeeds(object):
     def __init__(self) -> None:
         super().__init__()
 
@@ -101,18 +105,3 @@ class Earthquakes(object):
         path = f'{self.url}{min_magnitude}_{timeframe}.{format}'
         response = session.get(path)
         return response.json()
-
-    # def query_catalog(self, **kwargs):
-    #     """
-    #     GETs results of USGS EQ Catalog query as specified by supplied and/or default argument parameters.
-
-    #     Parameters:
-    #         response_format (str) -- file format in which to return summary and catalog responses (e.g. 'atom', 'csv', 'geojson', 'kml', 'xml')
-    #         start (str) -- Start date of time period to search (format: %Y-%m-%d)
-    #         end (str) -- End date of time period to search (format: %Y-%m-%d)
-    #     """
-    #     valid_params(kwargs)
-        
-    #     # path = f'{self.url.query_url()}format={response_format}&starttime={start}&endtime={end}&updatedafter={updated_after}&minmagnitude={min_magnitude}'
-    #     response = session.get(self.url.query_url(), params=kwargs)
-    #     return response.json()
