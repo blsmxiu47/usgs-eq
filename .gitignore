@@ -9,3 +9,4 @@ usgs_env
 
 vcr_cassettes/
 http_cache/
+test_downloads/
