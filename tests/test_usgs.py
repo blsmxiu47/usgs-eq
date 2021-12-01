@@ -1,12 +1,15 @@
-import sys
-# print(sys.path)
-sys.path.append('C:\\Users\\weswa\\Projects\\py-natural-events\\earthquakes\\usgs')
-import logging
 import os
+import sys
+import logging
 
+from dotenv import load_dotenv
 from pytest import fixture
 import vcr
 import pandas as pd
+
+load_dotenv()
+PROJECT_ROOT = os.environ.get('PROJECT_ROOT')
+sys.path.append(PROJECT_ROOT)
 
 from usgs import EQFeeds, EQCatalog
 
