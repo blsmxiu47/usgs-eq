@@ -1,6 +1,8 @@
-from usgs import EQFeeds, EQCatalog
-import pandas as pd
 import os
+
+import pandas as pd
+
+from usgs import EQFeeds, EQCatalog
 
 if __name__ == '__main__':
     feeds = EQFeeds()

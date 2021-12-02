@@ -3,11 +3,6 @@ import time
 
 from . import session
 from .urls import Urls
-# from .base import EQCatalogBase
-
-# class EQCatalog(EQCatalogBase):
-#     def __init__(self) -> None:
-#         logging.info('EQCatalog using Base...')
 
 
 class EQCatalog(object):
