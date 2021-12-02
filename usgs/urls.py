@@ -1,7 +1,6 @@
 class Urls:
     def __init__(self):
-        """
-        """
+        """ Defines base and endpoint urls in one place to make updating the package simpler if/when the official API is updated """
         self.base_url = 'https://earthquake.usgs.gov/'
         
         self.summary_base_url = self.base_url + 'earthquakes/feed/v1.0/summary/'
