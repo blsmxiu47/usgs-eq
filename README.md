@@ -5,18 +5,6 @@ A simple Python interface for the USGS Earthquake (EQ) Catalog API, in addition 
 - EQ Catalog: https://earthquake.usgs.gov/fdsnws/event/1/
 - Real-time Feeds (GeoJSON Summary): https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php
 
-## Installation
-Install via pip:
-```bash
-pip install -----
-```
-Install from source:
-```bash
-git clone -----
-cd  ---
-python ---- install
-```
-
 ## Usage
 Instantiating Feeds:
 ```python
