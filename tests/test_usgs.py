@@ -14,6 +14,13 @@ sys.path.append(PROJECT_ROOT)
 from usgs import EQFeeds, EQCatalog
 
 
+def get_test_download_path(download_filename, downloads_dir='test_downloads'):
+    if not os.path.exists(downloads_dir):
+        os.makedirs(downloads_dir)
+
+    return downloads_dir + '/' + download_filename
+
+
 @fixture
 def summary_keys():
     return ['type', 'metadata', 'features', 'bbox']
@@ -32,6 +39,20 @@ def test_earthquakes_get_summary(summary_keys):
     assert isinstance(response, dict), "Response should be of type 'dict'"
     assert response['type'] == 'FeatureCollection', "Response 'type' should be 'FeatureCollection'"
     assert set(summary_keys).issubset(response.keys()), 'All keys should be in the response'
+
+
+@vcr.use_cassette('tests/vcr_cassettes/eq-get-summary-quakeml.yaml', record_mode='new_episodes')
+def test_earthquakes_get_summary(summary_keys):
+    """Tests USGS Earthquakes GeoJSON Feed API call to get FeatureCollection metadata"""
+
+    eq_instance = EQFeeds()
+    file_path = get_test_download_path('eq_summary_M45_day.quakeml')
+    try:
+        response = eq_instance.get_summary(format='quakeml', timeframe='day', min_magnitude=4.5, file_path=file_path)
+    except vcr.errors.CannotOverwriteExistingCassetteException as e:
+        logging.warning(e)
+
+    assert isinstance(response, dict), "Response should be of type 'dict'"
 
 
 @vcr.use_cassette('tests/vcr_cassettes/eq-query-catalog.yaml', record_mode='new_episodes')
