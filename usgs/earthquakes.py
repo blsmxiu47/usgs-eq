@@ -1,9 +1,7 @@
 import logging
-import time
 
-from . import session
 from .urls import Urls
-
+from .utils import make_request
 
 class EQCatalog(object):
 
@@ -68,18 +66,7 @@ class EQCatalog(object):
     def query(self, file_path=None, **kwargs):
         """ Executes GET request of USGS EQ Catalog API using filters specified by user in method parameters """
         params = self.get_params(kwargs)
-        if params['format'] != 'geojson':
-            with session.get(self.url, params=params) as response:
-                response.raise_for_status()
-                if file_path is None:
-                    file_path = 'usgs_response_{0}.{1}'.format(time.time(), params['format'])
-                with open(file_path, 'wb+') as f:
-                    for chunk in response.iter_content(chunk_size=8192):
-                        f.write(chunk)
-                return {'response': response, 'user_parameters': kwargs}
-        else:
-            response = session.get(self.url, params=params)
-            return response.json()
+        return make_request(self.url, format=params['format'], params=params, file_path=file_path)
 
 
 class EQFeeds(object):
@@ -88,7 +75,7 @@ class EQFeeds(object):
 
         self.url = Urls().summary_url()
 
-    def get_summary(self, format='geojson', timeframe='hour', min_magnitude=None):
+    def get_summary(self, format='geojson', timeframe='hour', min_magnitude=None, file_path=None):
         """
         GETs pre-defined summary reports from USGS Earthquake Hazards Program Real-time Feeds. 
         These reports are suitable for regularly updating with recent data (up to past 30 days, updated every minute).
@@ -105,5 +92,4 @@ class EQFeeds(object):
                 "argument min_magnitude takes values '1.0', '2.5', '4.5', and 'significant'. For more specific filtering please use the EQ Catalog method, query_catalog"
         
         path = f'{self.url}{min_magnitude}_{timeframe}.{format}'
-        response = session.get(path)
-        return response.json()
+        return make_request(path, format=format, file_path=file_path)
